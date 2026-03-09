@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitTrack</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- כותרת -->
+    <header>
+        <div class="header-content">
+            <div class="logo">💪 FitTrack</div>
+            <p>עקוב אחרי הכושר שלך — כל יום, כל אימון</p>
+        </div>
+        <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1200&q=80"
+             alt="fitness" class="header-img">
+    </header>
+
+    <main>
+
+        <!-- פרטי משתמש -->
+        <section id="user-section">
+            <div class="section-icon">👤</div>
+            <h2>הפרטים שלי</h2>
+            <div class="form-grid">
+                <input type="text" id="name" placeholder="שם מלא" required>
+                <input type="number" id="age" placeholder="גיל" min="1" max="120">
+                <input type="number" id="weight" placeholder="משקל (ק״ג)" min="1" max="300">
+                <input type="number" id="height" placeholder="גובה (ס״מ)" min="1" max="250">
+            </div>
+            <button onclick="saveUser()">💾 שמור פרטים</button>
+            <div id="user-msg" class="msg"></div>
+        </section>
+
+        <!-- פעילויות -->
+        <div class="activities-grid">
+            <div class="activity-type-card" onclick="selectActivity('ריצה')">
+                <img src="https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=400&q=80" alt="ריצה">
+                <span>ריצה 🏃</span>
+            </div>
+            <div class="activity-type-card" onclick="selectActivity('הליכה')">
+                <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&q=80" alt="הליכה">
+                <span>הליכה 🚶</span>
+            </div>
+            <div class="activity-type-card" onclick="selectActivity('אופניים')">
+                <img src="https://images.unsplash.com/photo-1541625602330-2277a4c46182?w=400&q=80" alt="אופניים">
+                <span>אופניים 🚴</span>
+            </div>
+            <div class="activity-type-card" onclick="selectActivity('שחייה')">
+                <img src="https://images.unsplash.com/photo-1530549387789-4c1017266635?w=400&q=80" alt="שחייה">
+                <span>שחייה 🏊</span>
+            </div>
+        </div>
+
+        <!-- הוספת פעילות -->
+        <section id="activity-section">
+            <div class="section-icon">🏋️</div>
+            <h2>הוסף פעילות</h2>
+            <div class="selected-activity" id="selected-activity">לא נבחרה פעילות</div>
+            <div class="form-grid">
+                <input type="number" id="duration" placeholder="משך (דקות)" min="1" max="600">
+                <input type="number" id="distance" placeholder="מרחק (ק״מ)" min="0" max="1000" step="0.1">
+                <input type="date" id="date">
+            </div>
+            <button onclick="saveActivity()">➕ שמור פעילות</button>
+            <div id="activity-msg" class="msg"></div>
+        </section>
+
+        <!-- היסטוריה -->
+        <section id="history-section">
+            <div class="section-icon">📊</div>
+            <h2>היסטוריית אימונים</h2>
+            <button onclick="loadActivities()">🔄 טען היסטוריה</button>
+            <div id="activities-list"></div>
+        </section>
+
+    </main>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
