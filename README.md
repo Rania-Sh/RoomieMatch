@@ -163,6 +163,8 @@ const API = 'https://your-app.up.railway.app';
 ##  Authors
 
 Built  as a student project.
+Rania Shqerat
+Hadeel Shehadeh
 
 ---
 
