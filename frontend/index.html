@@ -1,84 +1,1092 @@
 <!DOCTYPE html>
-<html lang="he" dir="rtl">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FitTrack</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700;900&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RoomieMatch</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,500;0,700;1,300;1,500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --cream: #f5f0e8; --warm-white: #faf8f4;
+      --terracotta: #c8603a; --terracotta-light: #e07a54; --terracotta-pale: #f2ddd5;
+      --sage: #7a9e7e; --sage-pale: #dde8de;
+      --charcoal: #2a2520; --warm-gray: #8a7f75;
+      --border: #e0d8cc; --shadow: rgba(42,37,32,0.08);
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--warm-white); color: var(--charcoal); min-height: 100vh; overflow-x: hidden; }
+    body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E"); pointer-events: none; z-index: 9999; opacity: 0.4; }
+
+    /* ── NAV ── */
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 1.2rem 3rem; background: rgba(250,248,244,0.88); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); }
+    .nav-logo { font-family: 'Fraunces', serif; font-size: 1.5rem; font-weight: 500; color: var(--charcoal); letter-spacing: -0.02em; cursor:pointer; }
+    .nav-logo span { color: var(--terracotta); font-style: italic; }
+    .nav-links { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+    .nav-btn { padding: 0.55rem 1.4rem; border-radius: 100px; font-family: 'DM Sans', sans-serif; font-size: 0.875rem; font-weight: 500; cursor: pointer; border: none; transition: all 0.2s ease; }
+    .nav-btn-ghost { background: transparent; color: var(--warm-gray); }
+    .nav-btn-ghost:hover { color: var(--charcoal); background: var(--cream); }
+    .nav-btn-filled { background: var(--terracotta); color: white; }
+    .nav-btn-filled:hover { background: var(--terracotta-light); transform: translateY(-1px); }
+    .nav-btn-admin { background: var(--charcoal); color: white; }
+    .nav-btn-admin:hover { background: #3d3530; }
+
+    /* ── VIEWS ── */
+    .view { display: none; min-height: 100vh; padding-top: 80px; }
+    .view.active { display: block; }
+
+    /* ── HERO ── */
+    .hero { display: grid; grid-template-columns: 1fr 1fr; min-height: calc(100vh - 80px); padding: 4rem 3rem; gap: 4rem; align-items: center; max-width: 1200px; margin: 0 auto; }
+    .hero-tag { display: inline-flex; align-items: center; gap: 0.5rem; background: var(--sage-pale); color: var(--sage); padding: 0.35rem 1rem; border-radius: 100px; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 1.5rem; }
+    .hero-tag-dot { width: 6px; height: 6px; background: var(--sage); border-radius: 50%; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
+    .hero-title { font-family: 'Fraunces', serif; font-size: clamp(3rem,5vw,5rem); font-weight: 300; line-height: 1.05; letter-spacing: -0.03em; color: var(--charcoal); margin-bottom: 1.5rem; }
+    .hero-title em { font-style: italic; color: var(--terracotta); }
+    .hero-subtitle { font-size: 1.1rem; color: var(--warm-gray); line-height: 1.7; max-width: 440px; margin-bottom: 2.5rem; font-weight: 300; }
+    .hero-ctas { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .btn-primary { padding: 0.9rem 2rem; background: var(--terracotta); color: white; border: none; border-radius: 100px; font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 500; cursor: pointer; transition: all 0.25s ease; }
+    .btn-primary:hover { background: var(--terracotta-light); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(200,96,58,0.3); }
+    .btn-secondary { padding: 0.9rem 2rem; background: transparent; color: var(--charcoal); border: 1.5px solid var(--border); border-radius: 100px; font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 500; cursor: pointer; transition: all 0.25s ease; }
+    .btn-secondary:hover { background: var(--cream); border-color: var(--charcoal); }
+    .hero-stats { display: flex; gap: 3rem; padding: 2rem 0; border-top: 1px solid var(--border); margin-top: 1.5rem; }
+    .hero-stat-item { display: flex; flex-direction: column; gap: 0.25rem; }
+    .hero-stat-num { font-family: 'Fraunces', serif; font-size: 1.8rem; font-weight: 300; color: var(--charcoal); }
+    .hero-stat-label { font-size: 0.8rem; color: var(--warm-gray); }
+    .hero-visual { position: relative; height: 520px; }
+    .hero-shape { position: absolute; border-radius: 50%; filter: blur(60px); pointer-events: none; z-index: -1; }
+    .shape-1 { width: 400px; height: 400px; background: var(--terracotta-pale); top: -100px; right: -100px; opacity: 0.5; }
+    .shape-2 { width: 300px; height: 300px; background: var(--sage-pale); bottom: 0; left: -80px; opacity: 0.6; }
+    .photo-card { position: absolute; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 60px rgba(42,37,32,0.18); border: 4px solid white; transition: transform 0.3s ease; }
+    .photo-card:hover { transform: scale(1.03) rotate(0deg) !important; }
+    .photo-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .photo-card:nth-child(1){width:210px;height:270px;top:20px;left:10px;transform:rotate(-5deg);z-index:1}
+    .photo-card:nth-child(2){width:230px;height:290px;top:60px;right:20px;transform:rotate(3deg);z-index:2}
+    .photo-card:nth-child(3){width:190px;height:240px;bottom:30px;left:90px;transform:rotate(-1deg);z-index:3}
+    .photo-badge { position: absolute; background: white; border-radius: 14px; padding: 0.6rem 1.1rem; box-shadow: 0 8px 24px var(--shadow); font-size: 0.82rem; font-weight: 700; z-index: 10; border: 1px solid var(--border); }
+    .photo-badge.badge-top { top: 5px; right: 5px; color: var(--sage); animation: floatBadge 3s ease-in-out infinite; }
+    .photo-badge.badge-bottom { bottom: 55px; right: 0; color: var(--terracotta); animation: floatBadge 3s ease-in-out infinite; animation-delay: 1.2s; }
+    @keyframes floatBadge { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+
+    /* ── FEATURES / HOW ── */
+    .features-section { background: var(--cream); padding: 5rem 3rem; }
+    .features-inner { max-width: 1100px; margin: 0 auto; }
+    .features-title,.how-title { font-family: 'Fraunces', serif; font-size: 2rem; font-weight: 400; text-align: center; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
+    .features-sub,.how-sub { text-align: center; color: var(--warm-gray); margin-bottom: 3rem; font-size: 0.95rem; }
+    .features-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem; }
+    .feature-card { background: white; border-radius: 20px; padding: 2rem; border: 1px solid var(--border); transition: transform 0.2s, box-shadow 0.2s; }
+    .feature-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px var(--shadow); }
+    .feature-icon { font-size: 2rem; margin-bottom: 1rem; }
+    .feature-title { font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 500; margin-bottom: 0.5rem; }
+    .feature-desc { font-size: 0.88rem; color: var(--warm-gray); line-height: 1.6; }
+    .how-section { padding: 5rem 3rem; max-width: 860px; margin: 0 auto; }
+    .steps { display: flex; flex-direction: column; gap: 1.5rem; }
+    .step { display: flex; gap: 1.5rem; align-items: flex-start; }
+    .step-circle { width: 48px; height: 48px; border-radius: 50%; background: var(--terracotta-pale); color: var(--terracotta); font-family: 'Fraunces', serif; font-size: 1.2rem; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .step-content h4 { font-family: 'Fraunces', serif; font-size: 1.05rem; margin-bottom: 0.3rem; }
+    .step-content p { font-size: 0.88rem; color: var(--warm-gray); line-height: 1.6; }
+
+    /* ── SECTION WRAP ── */
+    .section-wrap { max-width: 800px; margin: 0 auto; padding: 3rem 2rem 5rem; }
+    .section-header { margin-bottom: 2.5rem; }
+    .section-eyebrow { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--terracotta); margin-bottom: 0.5rem; }
+    .section-title { font-family: 'Fraunces', serif; font-size: 2.4rem; font-weight: 300; color: var(--charcoal); letter-spacing: -0.02em; line-height: 1.15; }
+    .section-title em { font-style: italic; color: var(--terracotta); }
+
+    /* ── FORM ── */
+    .form-steps { display: flex; gap: 0.5rem; margin-bottom: 2.5rem; align-items: center; }
+    .step-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; font-weight: 500; color: var(--warm-gray); transition: color 0.3s; }
+    .step-item.active { color: var(--terracotta); }
+    .step-item.done { color: var(--sage); }
+    .step-num { width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid currentColor; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; flex-shrink: 0; transition: all 0.3s; }
+    .step-item.active .step-num { background: var(--terracotta); color: white; border-color: var(--terracotta); }
+    .step-item.done .step-num { background: var(--sage); color: white; border-color: var(--sage); }
+    .step-divider { flex: 1; height: 1px; background: var(--border); }
+    .form-panel { display: none; }
+    .form-panel.active { display: block; animation: slideUp 0.4s ease; }
+    @keyframes slideUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+    .field { display: flex; flex-direction: column; gap: 0.5rem; }
+    .field.span-2 { grid-column: 1/-1; }
+    label { font-size: 0.825rem; font-weight: 500; color: var(--charcoal); letter-spacing: -0.01em; }
+    label .optional { color: var(--warm-gray); font-weight: 400; }
+    input, select, textarea { padding: 0.75rem 1rem; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; color: var(--charcoal); background: white; transition: border-color 0.2s, box-shadow 0.2s; outline: none; appearance: none; }
+    input:focus, select:focus, textarea:focus { border-color: var(--terracotta); box-shadow: 0 0 0 3px rgba(200,96,58,0.1); }
+    input::placeholder, textarea::placeholder { color: #c5bdb5; }
+    textarea { resize: vertical; min-height: 80px; }
+    .slider-wrap { display: flex; flex-direction: column; gap: 0.6rem; }
+    .slider-labels { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--warm-gray); }
+    input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 4px; background: var(--border); border-radius: 2px; padding: 0; border: none; box-shadow: none; }
+    input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--terracotta); cursor: pointer; }
+    .slider-val { font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 500; color: var(--terracotta); text-align: center; }
+    .chips-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .chip-input { display: none; }
+    .chip-label { padding: 0.45rem 1rem; border-radius: 100px; border: 1.5px solid var(--border); font-size: 0.825rem; font-weight: 500; color: var(--warm-gray); cursor: pointer; transition: all 0.2s; user-select: none; }
+    .chip-input:checked + .chip-label { border-color: var(--terracotta); background: var(--terracotta-pale); color: var(--terracotta); }
+    .form-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    .btn-nav-back { background: transparent; border: 1.5px solid var(--border); padding: 0.7rem 1.5rem; border-radius: 100px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; color: var(--warm-gray); cursor: pointer; transition: all 0.2s; }
+    .btn-nav-back:hover { border-color: var(--charcoal); color: var(--charcoal); }
+    .btn-nav-next { background: var(--charcoal); border: none; padding: 0.7rem 2rem; border-radius: 100px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; color: white; cursor: pointer; transition: all 0.2s; }
+    .btn-nav-next:hover { background: var(--terracotta); transform: translateY(-1px); }
+    .btn-submit { background: var(--terracotta); border: none; padding: 0.85rem 2.5rem; border-radius: 100px; font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 500; color: white; cursor: pointer; transition: all 0.25s; }
+    .btn-submit:hover { background: var(--terracotta-light); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(200,96,58,0.3); }
+
+    /* ── USER LOGIN ── */
+    async function userLogin(){
+      const email=document.getElementById('login-email').value.trim();
+      if(!email){ showToast('Please enter your email','error'); return; }
+      try{
+        const res=await fetch(API+'/login',{
+          method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({email})
+        });
+        const data=await res.json();
+        if(!res.ok){ showToast(data.detail||'No account found. Create a profile first.','error'); return; }
+        currentUserId=data.id;
+        localStorage.setItem('roomie_user_id',currentUserId);
+        updateNav(); showToast('Welcome back, '+data.name+'! 👋','success');
+        showView('profile');
+      } catch{ showToast('Cannot connect to server','error'); }
+    }
+
+        /* ── ADMIN LOGIN ── */
+    .admin-login-wrap { max-width: 420px; margin: 0 auto; padding: 3rem 2rem 5rem; }
+    .admin-login-card { background: white; border: 1px solid var(--border); border-radius: 24px; padding: 2.5rem; box-shadow: 0 8px 32px var(--shadow); }
+    .admin-login-icon { font-size: 2.5rem; text-align: center; margin-bottom: 1rem; }
+    .admin-login-title { font-family: 'Fraunces', serif; font-size: 1.8rem; font-weight: 400; text-align: center; margin-bottom: 0.4rem; }
+    .admin-login-sub { text-align: center; color: var(--warm-gray); font-size: 0.88rem; margin-bottom: 2rem; }
+    .admin-login-field { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1rem; }
+    .btn-admin-login { width: 100%; padding: 0.85rem; background: var(--charcoal); color: white; border: none; border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 0.5rem; }
+    .btn-admin-login:hover { background: var(--terracotta); transform: translateY(-1px); }
+
+    /* ── PROFILE CARD ── */
+    .profile-card { background: white; border: 1px solid var(--border); border-radius: 20px; padding: 2rem; margin-bottom: 1.5rem; }
+    .profile-card-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; }
+    .profile-avatar-big { width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Fraunces', serif; font-size: 1.6rem; font-weight: 500; color: white; flex-shrink: 0; }
+    .profile-name { font-family: 'Fraunces', serif; font-size: 1.4rem; font-weight: 500; }
+    .profile-meta { font-size: 0.85rem; color: var(--warm-gray); }
+    .profile-details { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .profile-detail { display: flex; flex-direction: column; gap: 0.2rem; }
+    .profile-detail-key { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--warm-gray); }
+    .profile-detail-val { font-size: 0.9rem; color: var(--charcoal); font-weight: 500; }
+    .profile-actions { display: flex; gap: 1rem; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border); flex-wrap: wrap; }
+    .btn-edit { padding: 0.6rem 1.5rem; background: var(--sage-pale); color: var(--sage); border: none; border-radius: 100px; font-family: 'DM Sans', sans-serif; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .btn-edit:hover { background: var(--sage); color: white; }
+    .btn-delete { padding: 0.6rem 1.5rem; background: #fde8e4; color: #c0392b; border: none; border-radius: 100px; font-family: 'DM Sans', sans-serif; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .btn-delete:hover { background: #c0392b; color: white; }
+    .btn-matches { padding: 0.6rem 1.5rem; background: var(--terracotta-pale); color: var(--terracotta); border: none; border-radius: 100px; font-family: 'DM Sans', sans-serif; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .btn-matches:hover { background: var(--terracotta); color: white; }
+
+    /* ── MATCHES ── */
+    .matches-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap: 1.5rem; margin-top: 1.5rem; }
+    .match-card { background: white; border-radius: 20px; padding: 1.75rem; border: 1px solid var(--border); box-shadow: 0 4px 20px var(--shadow); transition: all 0.3s ease; position: relative; overflow: hidden; }
+    .match-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--terracotta), var(--sage)); transform: scaleX(0); transform-origin: left; transition: transform 0.4s ease; }
+    .match-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px var(--shadow); }
+    .match-card:hover::before { transform: scaleX(1); }
+    .match-card-avatar { width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Fraunces', serif; font-size: 1.3rem; font-weight: 500; color: white; margin-bottom: 1rem; }
+    .match-card-name { font-family: 'Fraunces', serif; font-size: 1.25rem; font-weight: 500; margin-bottom: 0.25rem; letter-spacing: -0.02em; }
+    .match-card-location { font-size: 0.82rem; color: var(--warm-gray); margin-bottom: 1rem; }
+    .match-score-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; }
+    .match-score-label { font-size: 0.78rem; font-weight: 500; color: var(--warm-gray); }
+    .match-score-pct { font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 500; color: var(--sage); }
+    .score-bar-track { height: 5px; background: var(--cream); border-radius: 3px; overflow: hidden; margin-bottom: 1.25rem; }
+    .score-bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--terracotta), var(--sage)); transition: width 1.2s cubic-bezier(0.25,1,0.5,1); }
+    .match-details { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 1rem; }
+    .match-detail-item { display: flex; flex-direction: column; gap: 0.15rem; }
+    .detail-key { font-size: 0.7rem; color: var(--warm-gray); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
+    .detail-val { font-size: 0.85rem; color: var(--charcoal); font-weight: 500; }
+    .match-card-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .say-hello-btn { display: inline-flex; align-items: center; gap: 0.5rem; background: var(--terracotta); color: white; padding: 0.6rem 1.25rem; border-radius: 100px; font-family: 'DM Sans', sans-serif; font-size: 0.825rem; font-weight: 600; text-decoration: none; transition: all 0.25s ease; box-shadow: 0 4px 12px rgba(200,96,58,0.2); border: none; cursor: pointer; }
+    .say-hello-btn:hover { background: var(--terracotta-light); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(200,96,58,0.35); }
+    .chat-btn { display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--sage-pale); color: var(--sage); padding: 0.6rem 1.25rem; border-radius: 100px; font-family: 'DM Sans', sans-serif; font-size: 0.825rem; font-weight: 600; border: none; cursor: pointer; transition: all 0.25s ease; width: 100%; }
+    .chat-btn:hover { background: var(--sage); color: white; transform: translateY(-2px); }
+
+    /* ── USERS LIST (admin) ── */
+    .users-list { display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem; }
+    .user-row { display: flex; align-items: center; gap: 1.25rem; padding: 1.25rem 1.5rem; background: white; border: 1px solid var(--border); border-radius: 16px; transition: all 0.25s; }
+    .user-row:hover { border-color: var(--terracotta); box-shadow: 0 4px 20px var(--shadow); transform: translateX(4px); }
+    .user-row-avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 500; color: white; flex-shrink: 0; }
+    .user-row-info { flex: 1; }
+    .user-row-name { font-family: 'Fraunces', serif; font-size: 1rem; font-weight: 500; margin-bottom: 0.15rem; }
+    .user-row-meta { font-size: 0.8rem; color: var(--warm-gray); }
+    .user-row-action { padding: 0.45rem 1.1rem; background: var(--terracotta-pale); color: var(--terracotta); border: none; border-radius: 100px; font-family: 'DM Sans', sans-serif; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .user-row-action:hover { background: var(--terracotta); color: white; }
+
+    /* ── CHAT ── */
+    .chat-wrap { max-width: 700px; margin: 0 auto; padding: 2rem 2rem 5rem; }
+    .chat-back { display: inline-flex; align-items: center; gap: 0.5rem; background: transparent; border: 1.5px solid var(--border); padding: 0.55rem 1.25rem; border-radius: 100px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; color: var(--warm-gray); cursor: pointer; transition: all 0.2s; margin-bottom: 1.5rem; }
+    .chat-back:hover { border-color: var(--charcoal); color: var(--charcoal); }
+    .chat-header { display: flex; align-items: center; gap: 1rem; padding: 1.25rem 1.5rem; background: white; border: 1px solid var(--border); border-radius: 16px 16px 0 0; }
+    .chat-avatar { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Fraunces', serif; font-size: 1rem; font-weight: 500; color: white; flex-shrink: 0; }
+    .chat-partner-name { font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 500; }
+    .chat-partner-city { font-size: 0.8rem; color: var(--warm-gray); }
+    .chat-messages { background: var(--cream); border-left: 1px solid var(--border); border-right: 1px solid var(--border); min-height: 380px; max-height: 480px; overflow-y: auto; padding: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem; }
+    .chat-bubble { max-width: 72%; padding: 0.7rem 1rem; border-radius: 16px; font-size: 0.875rem; line-height: 1.5; word-break: break-word; }
+    .chat-bubble.mine { background: var(--terracotta); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+    .chat-bubble.theirs { background: white; color: var(--charcoal); align-self: flex-start; border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+    .chat-bubble .bubble-time { font-size: 0.68rem; opacity: 0.65; margin-top: 0.25rem; text-align: right; }
+    .chat-input-row { display: flex; gap: 0.75rem; padding: 1rem 1.25rem; background: white; border: 1px solid var(--border); border-radius: 0 0 16px 16px; border-top: none; }
+    .chat-input { flex: 1; padding: 0.7rem 1rem; border: 1.5px solid var(--border); border-radius: 100px; font-family: 'DM Sans', sans-serif; font-size: 0.875rem; outline: none; transition: border-color 0.2s; }
+    .chat-input:focus { border-color: var(--terracotta); }
+    .chat-send-btn { background: var(--terracotta); color: white; border: none; border-radius: 100px; padding: 0.7rem 1.5rem; font-family: 'DM Sans', sans-serif; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .chat-send-btn:hover { background: var(--terracotta-light); }
+    .chat-empty { text-align: center; padding: 3rem 1rem; color: var(--warm-gray); font-size: 0.875rem; }
+
+    /* ── CONVERSATIONS ── */
+    .conversations-list { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1.5rem; }
+    .conv-item { display: flex; align-items: center; gap: 1rem; padding: 1rem 1.25rem; background: white; border: 1px solid var(--border); border-radius: 14px; cursor: pointer; transition: all 0.2s; }
+    .conv-item:hover { border-color: var(--terracotta); transform: translateX(4px); box-shadow: 0 4px 16px var(--shadow); }
+    .conv-avatar { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Fraunces', serif; font-size: 1rem; font-weight: 500; color: white; flex-shrink: 0; }
+    .conv-name { font-family: 'Fraunces', serif; font-size: 0.95rem; font-weight: 500; }
+    .conv-city { font-size: 0.78rem; color: var(--warm-gray); }
+
+    /* ── UTILITIES ── */
+    .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--terracotta); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 3rem auto; }
+    @keyframes spin { to{transform:rotate(360deg)} }
+    .empty-state { text-align: center; padding: 4rem 2rem; }
+    .empty-icon { width: 80px; height: 80px; background: var(--cream); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; }
+    .empty-icon svg { width: 36px; height: 36px; color: var(--warm-gray); }
+    .empty-title { font-family: 'Fraunces', serif; font-size: 1.5rem; font-weight: 300; color: var(--charcoal); margin-bottom: 0.5rem; }
+    .empty-sub { font-size: 0.9rem; color: var(--warm-gray); }
+    .toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--charcoal); color: white; padding: 0.85rem 1.75rem; border-radius: 100px; font-size: 0.9rem; font-weight: 500; z-index: 9998; opacity: 0; transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1); pointer-events: none; white-space: nowrap; }
+    .toast.success { background: var(--sage); }
+    .toast.error { background: #c0392b; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+    .fade-in { animation: fadeIn 0.6s ease both; }
+    .fade-in-d1{animation-delay:0.1s} .fade-in-d2{animation-delay:0.2s} .fade-in-d3{animation-delay:0.3s} .fade-in-d4{animation-delay:0.4s} .fade-in-d5{animation-delay:0.55s}
+
+    @media(max-width:768px){
+      nav{padding:1rem 1.25rem} .nav-logo{font-size:1.2rem}
+      .hero{grid-template-columns:1fr;padding:2rem 1.25rem;gap:2rem} .hero-visual{display:none}
+      .section-wrap{padding:2rem 1.25rem 4rem} .form-grid{grid-template-columns:1fr} .field.span-2{grid-column:1}
+      .matches-grid{grid-template-columns:1fr} .hero-stats{gap:1.5rem} .features-grid{grid-template-columns:1fr}
+      .features-section,.how-section{padding:3rem 1.5rem}
+    }
+  </style>
 </head>
 <body>
 
-    <!-- כותרת -->
-    <header>
-        <div class="header-content">
-            <div class="logo">💪 FitTrack</div>
-            <p>עקוב אחרי הכושר שלך — כל יום, כל אימון</p>
+  <nav>
+    <div class="nav-logo" onclick="showView('home')">Roomie<span>Match</span></div>
+    <div class="nav-links" id="nav-links">
+      <button class="nav-btn nav-btn-ghost" onclick="showView('home')">Home</button>
+      <button class="nav-btn nav-btn-ghost" id="nav-profile-btn"   style="display:none" onclick="showView('profile')">My Profile</button>
+      <button class="nav-btn nav-btn-ghost" id="nav-matches-btn"   style="display:none" onclick="showView('matches')">My Matches</button>
+      <button class="nav-btn nav-btn-ghost" id="nav-messages-btn"  style="display:none" onclick="showView('messages')">Messages</button>
+      <button class="nav-btn nav-btn-ghost" id="nav-browse-btn"    style="display:none" onclick="showView('admin-panel')">Browse</button>
+      <button class="nav-btn nav-btn-admin" id="nav-admin-btn"     style="display:none" onclick="showView('admin-panel')">⚙️ Admin Panel</button>
+      <button class="nav-btn nav-btn-ghost" id="nav-logout-btn"    style="display:none" onclick="logout()">Logout</button>
+      <button class="nav-btn nav-btn-ghost" id="nav-login-btn" onclick="showView('login')">Log In</button>
+      <button class="nav-btn nav-btn-filled" id="nav-create-btn" onclick="showView('create')">Create Profile</button>
+      <button class="nav-btn nav-btn-admin"  id="nav-admin-login-btn" onclick="showView('admin-login')">Admin</button>
+    </div>
+  </nav>
+
+  <!-- ══ HOME ══ -->
+  <div id="view-home" class="view active">
+    <div style="position:relative;overflow:hidden;">
+      <div class="hero-shape shape-1"></div>
+      <div class="hero-shape shape-2"></div>
+      <div class="hero">
+        <div class="hero-left">
+          <div class="hero-tag fade-in"><div class="hero-tag-dot"></div>ML-Powered Matching</div>
+          <h1 class="hero-title fade-in fade-in-d1">Find your<br/><em>perfect</em><br/>roommate.</h1>
+          <p class="hero-subtitle fade-in fade-in-d2">Fill in your lifestyle preferences and let our intelligent matching algorithm connect you with compatible roommates in your city.</p>
+          <div class="hero-ctas fade-in fade-in-d3">
+            <button class="btn-primary" onclick="showView('create')">Create My Profile</button>
+            <button class="btn-secondary" onclick="document.querySelector('.how-section').scrollIntoView({behavior:'smooth'})">How it works</button>
+          </div>
+          <div class="hero-stats fade-in fade-in-d4">
+            <div class="hero-stat-item"><span class="hero-stat-num" id="stat-users">0</span><span class="hero-stat-label">Active profiles</span></div>
+            <div class="hero-stat-item"><span class="hero-stat-num">ML</span><span class="hero-stat-label">Smart matching</span></div>
+            <div class="hero-stat-item"><span class="hero-stat-num">100%</span><span class="hero-stat-label">Free to use</span></div>
+          </div>
         </div>
-        <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1200&q=80"
-             alt="fitness" class="header-img">
-    </header>
+        <div class="hero-visual fade-in fade-in-d5">
+          <div class="photo-card"><img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=400&q=80" alt="Friends"/></div>
+          <div class="photo-card"><img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400&q=80" alt="Apartment"/></div>
+          <div class="photo-card"><img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=400&q=80" alt="Living room"/></div>
+          <div class="photo-badge badge-top">✨ 95% Match</div>
+          <div class="photo-badge badge-bottom">🏠 Same city</div>
+        </div>
+      </div>
+    </div>
+    <div class="features-section">
+      <div class="features-inner">
+        <h2 class="features-title">Why RoomieMatch?</h2>
+        <p class="features-sub">We go beyond finding a room — we find the right person</p>
+        <div class="features-grid">
+          <div class="feature-card"><div class="feature-icon">🎯</div><div class="feature-title">Smart Matching</div><div class="feature-desc">Our algorithm scores compatibility based on city, budget, sleep habits, cleanliness, and shared interests.</div></div>
+          <div class="feature-card"><div class="feature-icon">🌙</div><div class="feature-title">Lifestyle Fit</div><div class="feature-desc">Night owl or early bird? Neat freak or relaxed? We match people who actually get along day-to-day.</div></div>
+          <div class="feature-card"><div class="feature-icon">💸</div><div class="feature-title">Budget Aligned</div><div class="feature-desc">No more awkward money conversations — we only match people with compatible budgets from the start.</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="how-section">
+      <h2 class="how-title">How it works</h2>
+      <p class="how-sub">Three simple steps to find your ideal roommate</p>
+      <div class="steps">
+        <div class="step"><div class="step-circle">1</div><div class="step-content"><h4>Create your profile</h4><p>Tell us about yourself — your city, budget, sleep schedule, and what you enjoy.</p></div></div>
+        <div class="step"><div class="step-circle">2</div><div class="step-content"><h4>See your matches</h4><p>Our algorithm instantly ranks everyone by compatibility score — best match first.</p></div></div>
+        <div class="step"><div class="step-circle">3</div><div class="step-content"><h4>Say Hello 👋</h4><p>Click "Say Hello" or open in-app chat to connect with your top matches instantly.</p></div></div>
+      </div>
+    </div>
+  </div>
 
-    <main>
+  <!-- ══ ADMIN LOGIN ══ -->
+  <div id="view-admin-login" class="view">
+    <div class="admin-login-wrap">
+      <div class="section-header fade-in" style="text-align:center;margin-bottom:2rem;">
+        <p class="section-eyebrow">Restricted Access</p>
+        <h2 class="section-title">Admin <em>Login</em></h2>
+      </div>
+      <div class="admin-login-card fade-in">
+        <div class="admin-login-icon">🔐</div>
+        <div class="admin-login-title">Welcome back</div>
+        <div class="admin-login-sub">Sign in to access the admin panel</div>
+        <div class="admin-login-field">
+          <label for="admin-username">Username</label>
+          <input type="text" id="admin-username" placeholder="admin" />
+        </div>
+        <div class="admin-login-field">
+          <label for="admin-password">Password</label>
+          <input type="password" id="admin-password" placeholder="••••••••" onkeydown="if(event.key==='Enter') adminLogin()" />
+        </div>
+        <button class="btn-admin-login" onclick="adminLogin()">Sign In</button>
+      </div>
+    </div>
+  </div>
 
-        <!-- פרטי משתמש -->
-        <section id="user-section">
-            <div class="section-icon">👤</div>
-            <h2>הפרטים שלי</h2>
-            <div class="form-grid">
-                <input type="text" id="name" placeholder="שם מלא" required>
-                <input type="number" id="age" placeholder="גיל" min="1" max="120">
-                <input type="number" id="weight" placeholder="משקל (ק״ג)" min="1" max="300">
-                <input type="number" id="height" placeholder="גובה (ס״מ)" min="1" max="250">
-            </div>
-            <button onclick="saveUser()">💾 שמור פרטים</button>
-            <div id="user-msg" class="msg"></div>
-        </section>
+  <!-- ══ USER LOGIN ══ -->
+  <div id="view-login" class="view">
+    <div class="admin-login-wrap">
+      <div class="section-header fade-in" style="text-align:center;margin-bottom:2rem;">
+        <p class="section-eyebrow">Welcome back</p>
+        <h2 class="section-title">Log <em>in</em></h2>
+      </div>
+      <div class="admin-login-card fade-in">
+        <div class="admin-login-icon">👋</div>
+        <div class="admin-login-title">Good to see you</div>
+        <div class="admin-login-sub">Enter your email to access your profile</div>
+        <div class="admin-login-field">
+          <label for="login-email">Email address</label>
+          <input type="email" id="login-email" placeholder="e.g. alex@email.com" onkeydown="if(event.key==='Enter') userLogin()" />
+        </div>
+        <button class="btn-admin-login" style="background:var(--terracotta)" onclick="userLogin()">Log In</button>
+        <p style="text-align:center;margin-top:1rem;font-size:0.85rem;color:var(--warm-gray)">
+          No account? <span onclick="showView('create')" style="color:var(--terracotta);cursor:pointer;font-weight:600">Create a profile</span>
+        </p>
+      </div>
+    </div>
+  </div>
 
-        <!-- פעילויות -->
-        <div class="activities-grid">
-            <div class="activity-type-card" onclick="selectActivity('ריצה')">
-                <img src="https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=400&q=80" alt="ריצה">
-                <span>ריצה 🏃</span>
+  <!-- ══ ADMIN PANEL ══ -->
+  <div id="view-admin-panel" class="view">
+    <div class="section-wrap" style="max-width:900px">
+      <div class="section-header fade-in">
+        <p class="section-eyebrow">Admin Panel</p>
+        <h2 class="section-title">All <em>profiles</em></h2>
+      </div>
+      <div id="admin-users-container"><div class="spinner"></div></div>
+    </div>
+  </div>
+
+  <!-- ══ MY PROFILE ══ -->
+  <div id="view-profile" class="view">
+    <div class="section-wrap">
+      <div class="section-header fade-in">
+        <p class="section-eyebrow">Your Account</p>
+        <h2 class="section-title">My <em>profile</em></h2>
+      </div>
+      <div id="profile-container"><div class="spinner"></div></div>
+    </div>
+  </div>
+
+  <!-- ══ CREATE / EDIT PROFILE ══ -->
+  <div id="view-create" class="view">
+    <div class="section-wrap">
+      <div class="section-header fade-in">
+        <p class="section-eyebrow" id="form-eyebrow">Step 1 of 3</p>
+        <h2 class="section-title" id="form-title">Build your <em>profile</em></h2>
+      </div>
+      <div class="form-steps">
+        <div class="step-item active" id="step-ind-1"><div class="step-num">1</div><span>About you</span></div>
+        <div class="step-divider"></div>
+        <div class="step-item" id="step-ind-2"><div class="step-num">2</div><span>Lifestyle</span></div>
+        <div class="step-divider"></div>
+        <div class="step-item" id="step-ind-3"><div class="step-num">3</div><span>Preferences</span></div>
+      </div>
+      <!-- hidden: tracks whether we're editing an existing user -->
+      <input type="hidden" id="edit-user-id" value="" />
+      <form id="profile-form">
+        <div class="form-panel active" id="panel-1">
+          <div class="form-grid">
+            <div class="field"><label for="f-name">Full Name</label><input type="text" id="f-name" placeholder="e.g. Alex Johnson" required /></div>
+            <div class="field"><label for="f-email">Email</label><input type="email" id="f-email" placeholder="e.g. alex@email.com" required /></div>
+            <div class="field"><label for="f-age">Age</label><input type="number" id="f-age" placeholder="e.g. 24" min="18" max="80" required /></div>
+            <div class="field"><label for="f-city">City</label><input type="text" id="f-city" placeholder="e.g. Tel Aviv" required /></div>
+            <div class="field"><label for="f-gender">Gender</label>
+              <select id="f-gender" required>
+                <option value="">Select gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="non-binary">Non-binary</option>
+                <option value="prefer_not_to_say">Prefer not to say</option>
+              </select>
             </div>
-            <div class="activity-type-card" onclick="selectActivity('הליכה')">
-                <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&q=80" alt="הליכה">
-                <span>הליכה 🚶</span>
-            </div>
-            <div class="activity-type-card" onclick="selectActivity('אופניים')">
-                <img src="https://images.unsplash.com/photo-1541625602330-2277a4c46182?w=400&q=80" alt="אופניים">
-                <span>אופניים 🚴</span>
-            </div>
-            <div class="activity-type-card" onclick="selectActivity('שחייה')">
-                <img src="https://images.unsplash.com/photo-1530549387789-4c1017266635?w=400&q=80" alt="שחייה">
-                <span>שחייה 🏊</span>
-            </div>
+            <div class="field"><label for="f-budget">Monthly Rent Budget (ILS)</label><input type="number" id="f-budget" placeholder="e.g. 3500" min="500" required /></div>
+          </div>
+          <div class="form-nav"><span></span><button type="button" class="btn-nav-next" onclick="nextStep(2)">Continue &rarr;</button></div>
         </div>
 
-        <!-- הוספת פעילות -->
-        <section id="activity-section">
-            <div class="section-icon">🏋️</div>
-            <h2>הוסף פעילות</h2>
-            <div class="selected-activity" id="selected-activity">לא נבחרה פעילות</div>
-            <div class="form-grid">
-                <input type="number" id="duration" placeholder="משך (דקות)" min="1" max="600">
-                <input type="number" id="distance" placeholder="מרחק (ק״מ)" min="0" max="1000" step="0.1">
-                <input type="date" id="date">
+        <div class="form-panel" id="panel-2">
+          <div class="form-grid">
+            <div class="field span-2"><label>Cleanliness Style</label><div class="chips-row">
+              <input type="radio" name="neat" id="neat-very"  value="very_neat"        class="chip-input"/><label for="neat-very"  class="chip-label">Very Neat</label>
+              <input type="radio" name="neat" id="neat-mod"   value="moderately_neat"  class="chip-input"/><label for="neat-mod"   class="chip-label">Moderately Neat</label>
+              <input type="radio" name="neat" id="neat-relax" value="relaxed"           class="chip-input"/><label for="neat-relax" class="chip-label">Relaxed</label>
+              <input type="radio" name="neat" id="neat-messy" value="messy"             class="chip-input"/><label for="neat-messy" class="chip-label">Messy</label>
+            </div></div>
+            <div class="field span-2"><label>Pets</label><div class="chips-row">
+              <input type="radio" name="pets" id="pets-have" value="1"   class="chip-input"/><label for="pets-have" class="chip-label">I have pets</label>
+              <input type="radio" name="pets" id="pets-love" value="0.5" class="chip-input"/><label for="pets-love" class="chip-label">Love pets but don't have</label>
+              <input type="radio" name="pets" id="pets-no"   value="0"   class="chip-input"/><label for="pets-no"   class="chip-label">No pets please</label>
+            </div></div>
+            <div class="field span-2"><label>Sleep Schedule — <span class="optional">Bedtime hour</span></label>
+              <div class="slider-wrap">
+                <input type="range" id="f-sleep" min="20" max="30" value="23"
+                  oninput="updateSleepLabel(this.value)"/>
+                <div class="slider-labels">
+                  <span>8 PM</span>
+                  <span class="slider-val" id="sleep-val">23:00</span>
+                  <span>6 AM</span>
+                </div>
+              </div>
             </div>
-            <button onclick="saveActivity()">➕ שמור פעילות</button>
-            <div id="activity-msg" class="msg"></div>
-        </section>
+            <div class="field span-2"><label>Interests <span class="optional">(select all that apply)</span></label><div class="chips-row">
+              <input type="checkbox" name="interests" id="int-music"   value="music"   class="chip-input"/><label for="int-music"   class="chip-label">Music</label>
+              <input type="checkbox" name="interests" id="int-sports"  value="sports"  class="chip-input"/><label for="int-sports"  class="chip-label">Sports</label>
+              <input type="checkbox" name="interests" id="int-cooking" value="cooking" class="chip-input"/><label for="int-cooking" class="chip-label">Cooking</label>
+              <input type="checkbox" name="interests" id="int-gaming"  value="gaming"  class="chip-input"/><label for="int-gaming"  class="chip-label">Gaming</label>
+              <input type="checkbox" name="interests" id="int-art"     value="art"     class="chip-input"/><label for="int-art"     class="chip-label">Art</label>
+              <input type="checkbox" name="interests" id="int-travel"  value="travel"  class="chip-input"/><label for="int-travel"  class="chip-label">Travel</label>
+              <input type="checkbox" name="interests" id="int-reading" value="reading" class="chip-input"/><label for="int-reading" class="chip-label">Reading</label>
+              <input type="checkbox" name="interests" id="int-fitness" value="fitness" class="chip-input"/><label for="int-fitness" class="chip-label">Fitness</label>
+            </div></div>
+          </div>
+          <div class="form-nav">
+            <button type="button" class="btn-nav-back" onclick="nextStep(1)">&larr; Back</button>
+            <button type="button" class="btn-nav-next" onclick="nextStep(3)">Continue &rarr;</button>
+          </div>
+        </div>
 
-        <!-- היסטוריה -->
-        <section id="history-section">
-            <div class="section-icon">📊</div>
-            <h2>היסטוריית אימונים</h2>
-            <button onclick="loadActivities()">🔄 טען היסטוריה</button>
-            <div id="activities-list"></div>
-        </section>
+        <div class="form-panel" id="panel-3">
+          <div class="form-grid">
+            <div class="field span-2"><label>Preferred Roommate Gender</label><div class="chips-row">
+              <input type="radio" name="pref-gender" id="pg-any"    value="any"    class="chip-input"/><label for="pg-any"    class="chip-label">No preference</label>
+              <input type="radio" name="pref-gender" id="pg-male"   value="male"   class="chip-input"/><label for="pg-male"   class="chip-label">Male</label>
+              <input type="radio" name="pref-gender" id="pg-female" value="female" class="chip-input"/><label for="pg-female" class="chip-label">Female</label>
+            </div></div>
+            <div class="field span-2"><label for="f-bio">About Me <span class="optional">(optional)</span></label>
+              <textarea id="f-bio" placeholder="Tell future roommates a bit about yourself..."></textarea>
+            </div>
+          </div>
+          <div class="form-nav">
+            <button type="button" class="btn-nav-back" onclick="nextStep(2)">&larr; Back</button>
+            <button type="submit" class="btn-submit" id="form-submit-btn">Create Profile</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
 
-    </main>
+  <!-- ══ MY MATCHES ══ -->
+  <div id="view-matches" class="view">
+    <div class="section-wrap" style="max-width:1000px">
+      <div class="section-header fade-in">
+        <p class="section-eyebrow">ML Matching</p>
+        <h2 class="section-title">Your best <em>matches</em></h2>
+      </div>
+      <div id="matches-container">
+        <div class="empty-state">
+          <div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+          <p class="empty-title">Loading matches…</p>
+          <p class="empty-sub">Finding your best roommate matches</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    <script src="js/app.js"></script>
+  <!-- ══ MESSAGES (conversations list) ══ -->
+  <div id="view-messages" class="view">
+    <div class="section-wrap">
+      <div class="section-header fade-in">
+        <p class="section-eyebrow">In-App Chat</p>
+        <h2 class="section-title">My <em>messages</em></h2>
+      </div>
+      <div id="conversations-container"><div class="spinner"></div></div>
+    </div>
+  </div>
+
+  <!-- ══ CHAT VIEW ══ -->
+  <div id="view-chat" class="view">
+    <div class="chat-wrap">
+      <button class="chat-back" onclick="showView('messages')">← Back to Messages</button>
+      <div id="chat-header-area"></div>
+      <div class="chat-messages" id="chat-messages-area"></div>
+      <div class="chat-input-row">
+        <input class="chat-input" id="chat-input" placeholder="Type a message…" onkeydown="if(event.key==='Enter') sendChatMessage()" />
+        <button class="chat-send-btn" onclick="sendChatMessage()">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+      const API = 'https:roomiematch-production-d1bb.up.railway.app';
+    let currentStep = 1;
+    let currentUserId = localStorage.getItem("roomie_user_id") ? parseInt(localStorage.getItem("roomie_user_id")) : null;
+    let isAdmin = localStorage.getItem("roomie_is_admin") === "true";
+    let chatPartnerId = null;
+    let chatPollTimer = null;
+    let lastChatTimestamp = null;
+
+    const avatarColors = [
+      'linear-gradient(135deg,#c8603a,#e07a54)',
+      'linear-gradient(135deg,#7a9e7e,#a8c5ac)',
+      'linear-gradient(135deg,#5b7fa6,#87aed4)',
+      'linear-gradient(135deg,#9b6b9e,#c49dc7)',
+      'linear-gradient(135deg,#c0923e,#ddb96b)',
+    ];
+    function getAvatarColor(i){ return avatarColors[i % avatarColors.length]; }
+    function getInitials(name){
+      if(!name) return '?';
+      return name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    }
+    function escHtml(str){
+      if(str==null) return '';
+      return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    function showToast(msg,type=''){
+      const el=document.getElementById('toast');
+      el.textContent=msg; el.className='toast '+type;
+      el.classList.add('show');
+      setTimeout(()=>el.classList.remove('show'),3500);
+    }
+    function updateSleepLabel(val){
+      const h = parseInt(val);
+      document.getElementById('sleep-val').textContent = h > 24 ? (h-24)+':00 AM' : h+':00';
+    }
+
+    /* ── NAV STATE ── */
+    function updateNav(){
+      const loggedIn = !!currentUserId;
+      document.getElementById('nav-create-btn').style.display  = (!loggedIn && !isAdmin) ? '' : 'none';
+      document.getElementById('nav-login-btn').style.display    = (!loggedIn && !isAdmin) ? '' : 'none';
+      document.getElementById('nav-admin-login-btn').style.display  = (!isAdmin) ? '' : 'none';
+      document.getElementById('nav-profile-btn').style.display      = (loggedIn && !isAdmin) ? '' : 'none';
+      document.getElementById('nav-matches-btn').style.display      = (loggedIn && !isAdmin) ? '' : 'none';
+      document.getElementById('nav-messages-btn').style.display     = (loggedIn && !isAdmin) ? '' : 'none';
+      document.getElementById('nav-browse-btn').style.display       = isAdmin ? '' : 'none';
+      document.getElementById('nav-admin-btn').style.display        = isAdmin ? '' : 'none';
+      document.getElementById('nav-logout-btn').style.display       = (loggedIn || isAdmin) ? '' : 'none';
+    }
+
+    /* ── VIEW ROUTING ── */
+    function showView(name){
+      // guards
+      if((name==='admin-panel') && !isAdmin){ showToast('Admin access only','error'); return; }
+      if((name==='profile'||name==='matches'||name==='messages') && !currentUserId && !isAdmin){
+        showToast('Please create a profile first','error'); showView('create'); return;
+      }
+      // stop chat polling when leaving chat
+      if(name !== 'chat') stopChatPoll();
+
+      document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+      const target = document.getElementById('view-'+name);
+      if(target) target.classList.add('active');
+
+      if(name==='admin-panel')   loadAdminUsers();
+      if(name==='profile')       loadMyProfile();
+      if(name==='matches')       loadMatches();
+      if(name==='messages')      loadConversations();
+      if(name==='create')        initCreateForm();
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+
+    function logout(){
+      currentUserId=null; isAdmin=false;
+      localStorage.removeItem("roomie_user_id");
+      localStorage.removeItem("roomie_is_admin");
+      stopChatPoll();
+      updateNav(); showView('home');
+      showToast('Logged out successfully','success');
+    }
+
+    /* ── USER LOGIN ── */
+    async function userLogin(){
+      const email=document.getElementById('login-email').value.trim();
+      if(!email){ showToast('Please enter your email','error'); return; }
+      try{
+        const res=await fetch(API+'/login',{
+          method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({email})
+        });
+        const data=await res.json();
+        if(!res.ok){ showToast(data.detail||'No account found. Create a profile first.','error'); return; }
+        currentUserId=data.id;
+        localStorage.setItem('roomie_user_id',currentUserId);
+        updateNav(); showToast('Welcome back, '+data.name+'! 👋','success');
+        showView('profile');
+      } catch{ showToast('Cannot connect to server','error'); }
+    }
+
+        /* ── ADMIN LOGIN ── */
+    async function adminLogin(){
+      const username=document.getElementById('admin-username').value.trim();
+      const password=document.getElementById('admin-password').value.trim();
+      if(!username||!password){ showToast('Please enter username and password','error'); return; }
+      try{
+        const res=await fetch(API+'/admin/login',{
+          method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({username,password})
+        });
+        if(!res.ok){ const err=await res.json(); showToast(err.detail||'Invalid credentials','error'); return; }
+        isAdmin=true;
+        localStorage.setItem("roomie_is_admin","true");
+        updateNav(); showToast('Welcome, Admin! 👋','success');
+        showView('admin-panel');
+      } catch{ showToast('Cannot connect to server','error'); }
+    }
+
+    /* ── MY PROFILE ── */
+    async function loadMyProfile(){
+      const container=document.getElementById('profile-container');
+      container.innerHTML='<div class="spinner"></div>';
+      try{
+        const res=await fetch(API+'/users');
+        const users=await res.json();
+        const me=users.find(u=>u.id===currentUserId);
+        if(!me){ container.innerHTML=emptyState('Profile not found','Try creating a new profile'); return; }
+        container.innerHTML=`
+          <div class="profile-card fade-in">
+            <div class="profile-card-header">
+              <div class="profile-avatar-big" style="background:${getAvatarColor(0)}">${getInitials(me.name)}</div>
+              <div>
+                <div class="profile-name">${escHtml(me.name)}</div>
+                <div class="profile-meta">📍 ${escHtml(me.city)} &bull; Age ${me.age}</div>
+              </div>
+            </div>
+            <div class="profile-details">
+              <div class="profile-detail">
+                <span class="profile-detail-key">Budget</span>
+                <span class="profile-detail-val">${(me.budget||0).toLocaleString()} ILS/month</span>
+              </div>
+              <div class="profile-detail">
+                <span class="profile-detail-key">Email</span>
+                <span class="profile-detail-val">${escHtml(me.email)}</span>
+              </div>
+            </div>
+            <div class="profile-actions">
+              <button class="btn-matches" onclick="showView('matches')">🔍 See My Matches</button>
+              <button class="btn-edit" onclick="startEditProfile(${me.id})">✏️ Edit Profile</button>
+              <button class="btn-delete" onclick="deleteMyProfile(${me.id})">🗑️ Delete Account</button>
+            </div>
+          </div>`;
+      } catch{ container.innerHTML=emptyState('Could not load profile','Make sure the server is running'); }
+    }
+
+    async function deleteMyProfile(userId){
+      if(!confirm('Are you sure you want to delete your account? This cannot be undone.')) return;
+      try{
+        const res=await fetch(API+'/user/'+userId,{method:'DELETE'});
+        const data=await res.json();
+        if(data.error){ showToast(data.error,'error'); return; }
+        currentUserId=null; localStorage.removeItem("roomie_user_id");
+        updateNav(); showToast('Account deleted','success'); showView('home');
+      } catch{ showToast('Error deleting account','error'); }
+    }
+
+    /* ── ADMIN USERS ── */
+    async function loadAdminUsers(){
+      const container=document.getElementById('admin-users-container');
+      if(!container) return;
+      container.innerHTML='<div class="spinner"></div>';
+      try{
+        const res=await fetch(API+'/users');
+        const users=await res.json();
+        if(!users.length){ container.innerHTML=emptyState('No profiles yet','No users registered'); return; }
+        container.innerHTML='';
+        const list=document.createElement('div');
+        list.className='users-list';
+        users.forEach((user,i)=>{
+          const row=document.createElement('div');
+          row.className='user-row fade-in';
+          row.style.animationDelay=(i*0.07)+'s';
+          row.innerHTML=`
+            <div class="user-row-avatar" style="background:${getAvatarColor(i)}">${getInitials(user.name)}</div>
+            <div class="user-row-info">
+              <div class="user-row-name">${escHtml(user.name)}, ${user.age}</div>
+              <div class="user-row-meta">${escHtml(user.city)} &bull; ${escHtml(user.email)} &bull; Budget: ${(user.budget||0).toLocaleString()} ILS</div>
+            </div>
+            <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+              <button class="user-row-action" onclick="findMatchesFor(${user.id})">Matches</button>
+              <button class="user-row-action" style="background:var(--sage-pale);color:var(--sage);" onclick="startEditProfile(${user.id})">Edit</button>
+              <button class="user-row-action" style="background:#fde8e8;color:#c0392b;" onclick="adminDeleteUser(${user.id})">Delete</button>
+            </div>`;
+          list.appendChild(row);
+        });
+        container.appendChild(list);
+      } catch{ container.innerHTML=emptyState('Backend unreachable','Make sure the server is running'); }
+    }
+
+    async function adminDeleteUser(userId){
+      if(!confirm('Delete this user?')) return;
+      try{
+        const res=await fetch(API+'/user/'+userId,{method:'DELETE'});
+        const data=await res.json();
+        if(data.error){ showToast(data.error,'error'); return; }
+        showToast('User deleted','success'); loadAdminUsers();
+      } catch{ showToast('Error','error'); }
+    }
+
+    /* ── CREATE / EDIT FORM ── */
+    function initCreateForm(){
+      // Only reset if NOT pre-filled by startEditProfile
+      if(!document.getElementById('edit-user-id').value){
+        document.getElementById('profile-form').reset();
+        document.getElementById('form-title').innerHTML = 'Build your <em>profile</em>';
+        document.getElementById('form-submit-btn').textContent = 'Create Profile';
+        updateSleepLabel(23);
+      }
+      currentStep=1; updateStepUI(1);
+    }
+
+    async function startEditProfile(userId){
+      // Fetch users and pre-fill the form
+      try{
+        const res=await fetch(API+'/users');
+        const users=await res.json();
+        const user=users.find(u=>u.id===userId);
+        if(!user){ showToast('User not found','error'); return; }
+
+        document.getElementById('edit-user-id').value=userId;
+        document.getElementById('f-name').value=user.name||'';
+        document.getElementById('f-email').value=user.email||'';
+        document.getElementById('f-age').value=user.age||'';
+        document.getElementById('f-city').value=user.city||'';
+        document.getElementById('f-budget').value=user.budget||'';
+
+        document.getElementById('form-title').innerHTML = 'Edit your <em>profile</em>';
+        document.getElementById('form-submit-btn').textContent = 'Save Changes';
+        showView('create');
+      } catch{ showToast('Could not load user data','error'); }
+    }
+
+    function resetForm(){
+      document.getElementById('edit-user-id').value='';
+      document.getElementById('profile-form').reset();
+      document.getElementById('form-title').innerHTML='Build your <em>profile</em>';
+      document.getElementById('form-submit-btn').textContent='Create Profile';
+      updateSleepLabel(23);
+      currentStep=1; updateStepUI(1);
+    }
+
+    function nextStep(step){
+      if(step>currentStep && !validateStep(currentStep)) return;
+      currentStep=step; updateStepUI(step);
+    }
+
+    function validateStep(step){
+      if(step===1){
+        const name=document.getElementById('f-name').value.trim();
+        const age=parseInt(document.getElementById('f-age').value);
+        const city=document.getElementById('f-city').value.trim();
+        const budget=document.getElementById('f-budget').value;
+        const gender=document.getElementById('f-gender').value;
+        const email=document.getElementById('f-email').value.trim();
+        if(!name||!age||!city||!budget||!gender||!email){ showToast('Please fill in all required fields','error'); return false; }
+        if(age<18||age>80){ showToast('Age must be between 18 and 80','error'); return false; }
+        if(parseInt(budget)<500){ showToast('Budget must be at least 500 ILS','error'); return false; }
+        if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ showToast('Please enter a valid email','error'); return false; }
+        if(name.length<2){ showToast('Name must be at least 2 characters','error'); return false; }
+      }
+      return true;
+    }
+
+    function updateStepUI(step){
+      document.querySelectorAll('.form-panel').forEach(p=>p.classList.remove('active'));
+      document.getElementById('panel-'+step).classList.add('active');
+      for(let i=1;i<=3;i++){
+        const ind=document.getElementById('step-ind-'+i);
+        ind.className='step-item';
+        if(i<step) ind.classList.add('done');
+        else if(i===step) ind.classList.add('active');
+      }
+      document.getElementById('form-eyebrow').textContent='Step '+step+' of 3';
+    }
+
+    /* ── FORM SUBMIT: handles both CREATE and UPDATE ── */
+    document.getElementById('profile-form').addEventListener('submit',async(e)=>{
+      e.preventDefault();
+      const editId=document.getElementById('edit-user-id').value;
+      const isEdit=!!editId;
+
+      const interests=Array.from(document.querySelectorAll('input[name="interests"]:checked')).map(el=>el.value);
+      const petsVal=document.querySelector('input[name="pets"]:checked');
+      const neatVal=document.querySelector('input[name="neat"]:checked');
+      const prefGender=document.querySelector('input[name="pref-gender"]:checked');
+
+      // PUT /user/{id} — backend accepts same UserCreate schema
+      const payload={
+        name: document.getElementById('f-name').value.trim(),
+        email: document.getElementById('f-email').value.trim(),
+        age: parseInt(document.getElementById('f-age').value),
+        city: document.getElementById('f-city').value.trim(),
+        budget: parseInt(document.getElementById('f-budget').value),
+        gender: document.getElementById('f-gender').value,
+        sleep_time: parseInt(document.getElementById('f-sleep').value),
+        cleanliness: neatVal ? neatVal.value : 'moderately_neat',
+        pets: petsVal ? parseFloat(petsVal.value) : 0,
+        interests,
+        preferred_gender: prefGender ? prefGender.value : 'any',
+        bio: document.getElementById('f-bio').value.trim(),
+      };
+
+      const btn=e.target.querySelector('.btn-submit');
+      btn.textContent=isEdit?'Saving…':'Creating…'; btn.disabled=true;
+      try{
+        let res, data;
+        if(isEdit){
+          // PUT /user/{id}
+          res=await fetch(API+'/user/'+editId,{
+            method:'PUT', headers:{'Content-Type':'application/json'},
+            body:JSON.stringify(payload)
+          });
+          data=await res.json();
+          if(!res.ok||data.error){ showToast(data.error||data.detail||'Update failed','error'); return; }
+          // keep currentUserId if editing own profile
+          if(parseInt(editId)===currentUserId || !currentUserId){
+            currentUserId=parseInt(editId);
+            localStorage.setItem("roomie_user_id",currentUserId);
+          }
+          showToast('Profile updated! ✅','success');
+        } else {
+          // POST /user
+          res=await fetch(API+'/user',{
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body:JSON.stringify(payload)
+          });
+          data=await res.json();
+          if(!res.ok){ showToast(data.detail||'An error occurred','error'); return; }
+          currentUserId=data.id;
+          localStorage.setItem("roomie_user_id",currentUserId);
+          showToast('Profile created successfully! 🎉','success');
+        }
+        updateNav();
+        document.getElementById('edit-user-id').value='';
+        e.target.reset(); resetForm();
+        setTimeout(()=>showView('profile'),1200);
+      } catch(err){
+        showToast('Could not connect to backend: '+err.message,'error');
+      } finally{
+        btn.textContent=isEdit?'Save Changes':'Create Profile'; btn.disabled=false;
+      }
+    });
+
+    /* ── MATCHES ── */
+    async function loadMatches(){
+      if(!currentUserId){ showToast('Create a profile first','error'); return; }
+      await fetchMatches(currentUserId);
+    }
+
+    async function findMatchesFor(userId){
+      showView('matches');
+      await fetchMatches(userId);
+    }
+
+    async function fetchMatches(userId){
+      const container=document.getElementById('matches-container');
+      container.innerHTML='<div class="spinner"></div>';
+      try{
+        const res=await fetch(API+'/matches/'+userId);
+        if(!res.ok) throw new Error('Status '+res.status);
+        const matches=await res.json();
+        if(matches.error){ container.innerHTML=emptyState('Error',''+matches.error); return; }
+        if(!matches.length){ container.innerHTML=emptyState('No matches found','Try adding more profiles in the same city'); return; }
+
+        container.innerHTML='';
+        const grid=document.createElement('div');
+        grid.className='matches-grid';
+
+        matches.forEach((match,i)=>{
+          const score=match.score??0;
+          const pct=Math.round(score*100);
+          const card=document.createElement('div');
+          card.className='match-card fade-in';
+          card.style.animationDelay=(i*0.1)+'s';
+
+          // mailto link
+          const subject=encodeURIComponent('Hi from RoomieMatch! 🏠');
+          const body=encodeURIComponent(`Hey ${match.name},\n\nI found your profile on RoomieMatch and think we could be a great match!\n\nWould love to chat more about potentially being roommates.\n\nBest,`);
+          const mailtoLink=`mailto:${match.email}?subject=${subject}&body=${body}`;
+
+          // Only show chat button for regular (non-admin) logged-in user
+          const chatBtnHtml=(!isAdmin && currentUserId && currentUserId!==match.id)
+            ? `<button class="chat-btn" onclick="openChat(${match.id},'${escHtml(match.name)}','${escHtml(match.city)}')">💬 Chat</button>`
+            : '';
+
+          card.innerHTML=`
+            <div class="match-card-avatar" style="background:${getAvatarColor(i)}">${getInitials(match.name)}</div>
+            <div class="match-card-name">${escHtml(match.name)}, ${match.age}</div>
+            <div class="match-card-location">📍 ${escHtml(match.city)}</div>
+            <div class="match-score-row">
+              <span class="match-score-label">Compatibility</span>
+              <span class="match-score-pct">${pct}%</span>
+            </div>
+            <div class="score-bar-track">
+              <div class="score-bar-fill" style="width:0%" data-target="${pct}"></div>
+            </div>
+            <div class="match-details">
+              <div class="match-detail-item"><span class="detail-key">Budget</span><span class="detail-val">${(match.budget||0).toLocaleString()} ILS</span></div>
+              <div class="match-detail-item"><span class="detail-key">City</span><span class="detail-val">${escHtml(match.city)}</span></div>
+            </div>
+      <div class="match-card-actions">
+  ${chatBtnHtml}
+</div>
+`;
+          grid.appendChild(card);
+        });
+        container.appendChild(grid);
+        setTimeout(()=>container.querySelectorAll('.score-bar-fill').forEach(b=>b.style.width=b.dataset.target+'%'),200);
+      } catch{
+        container.innerHTML=emptyState('Could not load matches','Ensure the server is running');
+      }
+    }
+      /* ── CONVERSATIONS ── */
+    async function loadConversations(){
+      if(!currentUserId) return;
+      const container=document.getElementById('conversations-container');
+      container.innerHTML='<div class="spinner"></div>';
+      try{
+        const res=await fetch(API+'/conversations/'+currentUserId);
+        const convs=await res.json();
+        if(!convs.length){
+          container.innerHTML=emptyState('No conversations yet','Start chatting from your Matches page');
+          return;
+        }
+        container.innerHTML='';
+        const list=document.createElement('div');
+        list.className='conversations-list';
+        convs.forEach((conv,i)=>{
+          const item=document.createElement('div');
+          item.className='conv-item fade-in';
+          item.style.animationDelay=(i*0.07)+'s';
+          item.innerHTML=`
+            <div class="conv-avatar" style="background:${getAvatarColor(i)}">${getInitials(conv.name)}</div>
+            <div>
+              <div class="conv-name">${escHtml(conv.name)}</div>
+              <div class="conv-city">📍 ${escHtml(conv.city)}</div>
+            </div>`;
+          item.onclick=()=>openChat(conv.id, conv.name, conv.city);
+          list.appendChild(item);
+        });
+        container.appendChild(list);
+      } catch{
+        container.innerHTML=emptyState('Could not load conversations','Make sure the server is running');
+      }
+    }
+
+    /* ── CHAT ── */
+    function openChat(partnerId, partnerName, partnerCity){
+      chatPartnerId=partnerId;
+      stopChatPoll();
+      showView('chat');
+
+      // header
+      const idx = parseInt(partnerId) % avatarColors.length;
+      document.getElementById('chat-header-area').innerHTML=`
+        <div class="chat-header">
+          <div class="chat-avatar" style="background:${getAvatarColor(idx)}">${getInitials(partnerName)}</div>
+          <div>
+            <div class="chat-partner-name">${escHtml(partnerName)}</div>
+            <div class="chat-partner-city">📍 ${escHtml(partnerCity)}</div>
+          </div>
+        </div>`;
+
+      document.getElementById('chat-messages-area').innerHTML='<div class="chat-empty">Loading messages…</div>';
+      loadChatMessages();
+      // poll every 3 seconds for new messages
+      chatPollTimer=setInterval(loadChatMessages,3000);
+    }
+
+    async function loadChatMessages(){
+      if(!currentUserId||!chatPartnerId) return;
+      try{
+        const res=await fetch(API+'/messages/'+currentUserId+'/'+chatPartnerId);
+        if(!res.ok) return;
+        const msgs=await res.json();
+        const area=document.getElementById('chat-messages-area');
+        if(!area) return;
+
+        const wasAtBottom=area.scrollHeight-area.clientHeight<=area.scrollTop+40;
+
+        if(!msgs.length){
+          area.innerHTML='<div class="chat-empty">No messages yet. Say hello! 👋</div>';
+          return;
+        }
+        area.innerHTML='';
+        msgs.forEach(m=>{
+          const isMine=m.sender_id===currentUserId;
+          const bubble=document.createElement('div');
+          bubble.className='chat-bubble '+(isMine?'mine':'theirs');
+          const time=m.timestamp ? new Date(m.timestamp).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '';
+          bubble.innerHTML=`${escHtml(m.message)}<div class="bubble-time">${time}</div>`;
+          area.appendChild(bubble);
+        });
+        if(wasAtBottom) area.scrollTop=area.scrollHeight;
+      } catch{ /* silent — just polling */ }
+    }
+
+    async function sendChatMessage(){
+      const input=document.getElementById('chat-input');
+      const text=input.value.trim();
+      if(!text||!currentUserId||!chatPartnerId) return;
+      input.value='';
+      try{
+        await fetch(API+'/messages',{
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({sender_id:currentUserId, receiver_id:chatPartnerId, message:text})
+        });
+        await loadChatMessages();
+        const area=document.getElementById('chat-messages-area');
+        if(area) area.scrollTop=area.scrollHeight;
+      } catch{ showToast('Could not send message','error'); }
+    }
+
+    function stopChatPoll(){
+      if(chatPollTimer){ clearInterval(chatPollTimer); chatPollTimer=null; }
+    }
+
+    /* ── HELPERS ── */
+    function emptyState(title,sub){
+      return `<div class="empty-state"><div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div><p class="empty-title">${escHtml(title)}</p><p class="empty-sub">${escHtml(sub)}</p></div>`;
+    }
+
+    function animateCount(el,target){
+      let current=0; const step=Math.ceil(target/40);
+      const timer=setInterval(()=>{ current=Math.min(current+step,target); el.textContent=current; if(current>=target) clearInterval(timer); },40);
+    }
+
+    /* ── INIT ── */
+    updateNav();
+    fetch(API+'/users').then(r=>r.json()).then(users=>{
+      const el=document.getElementById('stat-users');
+      if(el) animateCount(el,users.length);
+    }).catch(()=>{});
+  </script>
 </body>
 </html>
