@@ -546,7 +546,7 @@
   <div class="toast" id="toast"></div>
 
   <script>
-      const API = 'https:roomiematch-production-d1bb.up.railway.app';
+    const API = 'https:roomiematch-production-d1bb.up.railway.app';
     let currentStep = 1;
     let currentUserId = localStorage.getItem("roomie_user_id") ? parseInt(localStorage.getItem("roomie_user_id")) : null;
     let isAdmin = localStorage.getItem("roomie_is_admin") === "true";
@@ -954,10 +954,9 @@
               <div class="match-detail-item"><span class="detail-key">Budget</span><span class="detail-val">${(match.budget||0).toLocaleString()} ILS</span></div>
               <div class="match-detail-item"><span class="detail-key">City</span><span class="detail-val">${escHtml(match.city)}</span></div>
             </div>
-      <div class="match-card-actions">
-  ${chatBtnHtml}
-</div>
-`;
+            <div class="match-card-actions">
+             ${chatBtnHtml}
+            </div>`;
           grid.appendChild(card);
         });
         container.appendChild(grid);
@@ -966,7 +965,8 @@
         container.innerHTML=emptyState('Could not load matches','Ensure the server is running');
       }
     }
-      /* ── CONVERSATIONS ── */
+
+    /* ── CONVERSATIONS ── */
     async function loadConversations(){
       if(!currentUserId) return;
       const container=document.getElementById('conversations-container');
