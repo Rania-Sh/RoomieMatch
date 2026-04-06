@@ -15,7 +15,6 @@ RoomieMatch is a full-stack web application that helps people find compatible ro
 - **Smart Matching Algorithm** — scores compatibility based on city, budget, sleep schedule, cleanliness, pets, and interests
 - **User Profiles** — create, edit, and delete your profile
 - **In-App Chat** — message your matches directly without sharing your email
-- **Say Hello** — quick email shortcut with a pre-written message
 - **Admin Panel** — admins can view, edit, and delete all profiles
 - **User Login** — log in with your email to access your profile
 - **Email Validation** — unique emails enforced per account
