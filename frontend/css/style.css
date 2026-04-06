@@ -1,4 +1,4 @@
-  <style>
+ 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --cream: #f5f0e8; --warm-white: #faf8f4;
@@ -255,4 +255,3 @@
       .matches-grid{grid-template-columns:1fr} .hero-stats{gap:1.5rem} .features-grid{grid-template-columns:1fr}
       .features-section,.how-section{padding:3rem 1.5rem}
     }
-  </style>
