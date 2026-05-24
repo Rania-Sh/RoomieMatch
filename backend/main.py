@@ -9,6 +9,7 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -96,8 +97,8 @@ def save_user(user: UserCreate):
         raise HTTPException(status_code=400, detail="An account with this email already exists. Please log in instead.")
     cursor.execute("""
         INSERT INTO "user"
-        (name, age, city, budget, sleep_time, is_clean, has_pets, gender, interests, email)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        (name, age, city, budget, sleep_time, is_clean, has_pets, gender, interests, email, preferred_gender)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         RETURNING id
     """, (
         user.name, user.age, user.city, user.budget,
@@ -106,7 +107,8 @@ def save_user(user: UserCreate):
         1 if user.pets > 0 else 0,
         user.gender,
         ",".join(user.interests),
-        user.email
+        user.email,
+        user.preferred_gender
     ))
     new_id = cursor.fetchone()[0]
     conn.commit()
@@ -128,16 +130,37 @@ def get_users():
 def get_matches(user_id: int):
     conn = get_conn()
     cursor = conn.cursor()
+
     cursor.execute('SELECT * FROM "user" WHERE id = %s', (user_id,))
     current = cursor.fetchone()
     if not current:
         conn.close()
         raise HTTPException(status_code=404, detail="User not found")
+
     cursor.execute('SELECT * FROM "user" WHERE id != %s AND city = %s', (user_id, current[4]))
     all_users = cursor.fetchall()
     conn.close()
+
+    """
+    Actual column order from DB:
+    0=id, 1=name, 2=email, 3=age, 4=city, 5=budget,
+    6=sleep_time, 7=is_clean, 8=has_pets, 9=gender, 10=interests, 11=preferred_gender
+    """
+
+    current_gender = current[9] or 'any'
+    current_preferred = current[11] or 'any'
+
     matches = []
     for user in all_users:
+        other_gender = user[9] or 'any'
+        other_preferred = user[11] or 'any'
+
+        # Filter by gender preference — both directions must be compatible
+        if current_preferred != 'any' and current_preferred != other_gender:
+            continue
+        if other_preferred != 'any' and other_preferred != current_gender:
+            continue
+
         score = calculate_match_score(current, user)
         matches.append({
             "id": user[0],
@@ -148,15 +171,15 @@ def get_matches(user_id: int):
             "email": user[2],
             "score": score
         })
+
     matches.sort(key=lambda x: x["score"], reverse=True)
     return matches
 
 
 def calculate_match_score(user1, user2):
     """
-    Actual column order from DB:
     0=id, 1=name, 2=email, 3=age, 4=city, 5=budget,
-    6=sleep_time, 7=is_clean, 8=has_pets, 9=gender, 10=interests
+    6=sleep_time, 7=is_clean, 8=has_pets, 9=gender, 10=interests, 11=preferred_gender
     """
     score = 0
     try:
@@ -166,8 +189,8 @@ def calculate_match_score(user1, user2):
         elif budget_diff < 2000: score += 5
     except: pass
     try:
-        if int(user1[6]) == int(user2[6]):            score += 20
-        elif abs(int(user1[6]) - int(user2[6])) <= 1: score += 10
+        if int(user1[6]) == int(user2[6]):             score += 20
+        elif abs(int(user1[6]) - int(user2[6])) <= 1:  score += 10
     except: pass
     try:
         if user1[7] == user2[7]: score += 15
@@ -185,6 +208,7 @@ def calculate_match_score(user1, user2):
     except: pass
     return round(min(score / 95, 1.0), 2)
 
+
 # ─── UPDATE USER ───
 @app.put("/user/{user_id}")
 def update_user(user_id: int, user: UserCreate):
@@ -196,12 +220,13 @@ def update_user(user_id: int, user: UserCreate):
         return {"error": "User not found"}
     cursor.execute("""
         UPDATE "user" SET name=%s, age=%s, city=%s, budget=%s, sleep_time=%s,
-        is_clean=%s, has_pets=%s, gender=%s, interests=%s WHERE id=%s
+        is_clean=%s, has_pets=%s, gender=%s, interests=%s, preferred_gender=%s
+        WHERE id=%s
     """, (
         user.name, user.age, user.city, user.budget, user.sleep_time,
         1 if user.cleanliness in ["very_neat", "moderately_neat"] else 0,
         1 if user.pets > 0 else 0,
-        user.gender, ",".join(user.interests), user_id
+        user.gender, ",".join(user.interests), user.preferred_gender, user_id
     ))
     conn.commit()
     conn.close()
@@ -217,6 +242,8 @@ def delete_user(user_id: int):
     if not cursor.fetchone():
         conn.close()
         return {"error": "User not found"}
+    # Delete messages first to avoid foreign key violation
+    cursor.execute('DELETE FROM messages WHERE sender_id = %s OR receiver_id = %s', (user_id, user_id))
     cursor.execute('DELETE FROM "user" WHERE id = %s', (user_id,))
     conn.commit()
     conn.close()
@@ -278,19 +305,3 @@ def get_conversations(user_id: int):
             result.append({"id": user[0], "name": user[1], "age": user[2], "city": user[3]})
     conn.close()
     return result
-
-
-# ─── DEBUG (remove after testing) ───
-@app.get("/debug/{user_id}")
-def debug_user(user_id: int):
-    conn = get_conn()
-    cursor = conn.cursor()
-    cursor.execute('SELECT * FROM "user" WHERE id = %s', (user_id,))
-    user = cursor.fetchone()
-    cursor.execute('SELECT id, name, city FROM "user" WHERE id != %s', (user_id,))
-    all_users = cursor.fetchall()
-    conn.close()
-    return {
-        "user": user,
-        "all_cities": [{"id": u[0], "name": u[1], "city": u[2]} for u in all_users]
-    }
