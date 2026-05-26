@@ -1,3 +1,6 @@
+from dotenv import load_dotenv
+load_dotenv() # Load environment variables BEFORE importing database
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, EmailStr
@@ -305,3 +308,19 @@ def get_conversations(user_id: int):
             result.append({"id": user[0], "name": user[1], "age": user[2], "city": user[3]})
     conn.close()
     return result
+
+
+# ─── DEBUG (remove after testing) ───
+@app.get("/debug/{user_id}")
+def debug_user(user_id: int):
+    conn = get_conn()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM "user" WHERE id = %s', (user_id,))
+    user = cursor.fetchone()
+    cursor.execute('SELECT id, name, city FROM "user" WHERE id != %s', (user_id,))
+    all_users = cursor.fetchall()
+    conn.close()
+    return {
+        "user": user,
+        "all_cities": [{"id": u[0], "name": u[1], "city": u[2]} for u in all_users]
+    }
